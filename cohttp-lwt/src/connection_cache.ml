@@ -1,4 +1,5 @@
 exception Retry = Connection.Retry
+exception Name_resolution_failed
 
 (** This functor establishes a new connection for each request. *)
 module Make_no_cache (Connection : S.Connection) : sig
@@ -21,7 +22,10 @@ end = struct
   let create ?(ctx = Net.default_ctx) () ?headers ?body meth uri =
     Net.resolve ~ctx uri
     (* TODO: Support chunked encoding without ~persistent:true ? *)
-    >>= Connection.connect ~ctx ~persistent:true
+    >>= fun (endp : Net.endp) ->
+    (if Net.is_valid_endp endp then
+     Connection.connect ~ctx ~persistent:true endp
+    else Lwt.fail (Name_resolution_failed))
     >>= fun connection ->
     let res = Connection.call connection ?headers ?body meth uri in
     (* this can be simplified when https://github.com/mirage/ocaml-conduit/pull/319 is released. *)

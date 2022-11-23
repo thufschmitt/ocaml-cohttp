@@ -34,6 +34,7 @@ let default_ctx =
   }
 
 type endp = Conduit.endp
+let is_valid_endp = function `Unknown _ -> false | _ -> true
 
 let resolve ~ctx uri = Resolver_lwt.resolve_uri ~uri ctx.resolver
 

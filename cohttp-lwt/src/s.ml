@@ -36,6 +36,8 @@ module type Net = sig
 
   val default_ctx : ctx
 
+  val is_valid_endp : endp -> bool
+
   val resolve : ctx:ctx -> Uri.t -> endp IO.t
   (** [resolve ~ctx uri] resolves [uri] into an endpoint description. This is
       [Resolver_lwt.resolve_uri ~uri ctx.resolver]. *)

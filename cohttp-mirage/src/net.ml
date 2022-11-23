@@ -22,6 +22,8 @@ struct
 
   type endp = Conduit.endp
 
+  let is_valid_endp = function `Unknown _ -> false | _ -> true
+
   let resolve ~ctx uri = R.resolve_uri ~uri ctx.resolver
 
   let connect_endp ~ctx endp =
