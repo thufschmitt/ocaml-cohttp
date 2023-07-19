@@ -42,13 +42,10 @@ let reporter file_descr ppf =
         over ();
         Lwt.return_unit
       in
-      Lwt.async (fun () ->
-          Lwt.catch
-            (fun () -> Lwt.finalize write clean)
-            (fun exn ->
-              Logs.warn (fun m ->
-                  m "Flushing error: %s." (Printexc.to_string exn));
-              Lwt.return_unit));
+      Lwt.dont_wait
+        (fun () -> Lwt.finalize write clean)
+        (fun exn ->
+          Logs.warn (fun m -> m "Flushing error: %s." (Printexc.to_string exn)));
       k ()
     in
     let with_metadata header _tags k ppf fmt =
