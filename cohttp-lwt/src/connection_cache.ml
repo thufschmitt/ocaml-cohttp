@@ -25,11 +25,12 @@ end = struct
     >>= fun (endp : Net.endp) ->
     (if Net.is_valid_endp endp then
      Connection.connect ~ctx ~persistent:true endp
-    else Lwt.fail (Name_resolution_failed))
+    else Lwt.fail Name_resolution_failed)
     >>= fun connection ->
     let res = Connection.call connection ?headers ?body meth uri in
     (* this can be simplified when https://github.com/mirage/ocaml-conduit/pull/319 is released. *)
-    Lwt.dont_wait (fun () ->
+    Lwt.dont_wait
+      (fun () ->
         res >>= fun (_, body) ->
         (match body with
         | `Empty | `String _ | `Strings _ -> Lwt.return_unit
@@ -38,8 +39,11 @@ end = struct
         Connection.close connection;
         Lwt.return_unit)
       (function
-       | Retry -> ()
-       | e -> raise e);
+        | Retry -> ()
+        | e ->
+            Logs.err (fun m ->
+                m "error shutting down cohttp connection: %s"
+                @@ Printexc.to_string e));
     res
 end
 
