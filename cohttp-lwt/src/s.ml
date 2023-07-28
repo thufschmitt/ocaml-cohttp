@@ -35,7 +35,6 @@ module type Net = sig
       the specified port by the user in a non-secured way. *)
 
   val default_ctx : ctx
-
   val is_valid_endp : endp -> bool
 
   val resolve : ctx:ctx -> Uri.t -> endp IO.t
@@ -149,11 +148,6 @@ module type Connection = sig
     t Net.IO.t
   (** Same as [create], but returns d promise which gets fulfilled when the
       connection is established or rejected when connecting fails. *)
-
-  val shutdown : t -> unit
-  (** Send {e EOF}. On {e TCP} connections send a {e FIN} packet. On {e TLS}
-      connections send a {e close notify}. No new requests can be sent
-      afterwards, but responses may still be received. *)
 
   val close : t -> unit
   (** Immediately close connection. All outstanding requests will fail, but
